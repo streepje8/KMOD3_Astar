@@ -7,14 +7,11 @@ public class Astar
 {
     public const int maxLoops = 100000;
 
-    /// TODO: Implement this function so that it returns a list of Vector2Int positions which describes a path
-    /// Note that you will probably need to add some helper functions
-    /// from the startPos to the endPos
     public List<Vector2Int> FindPathToTarget(Vector2Int startPos, Vector2Int endPos, Cell[,] grid)
     {
         List<Node> openNodes = new List<Node>();
+        openNodes.Add(new Node(startPos,null,0,Vector2Int.Distance(startPos, endPos)));
         List<Node> closedNodes = new List<Node>();
-        openNodes.Add(new Node(startPos,null,0,0));
         int loops = 0;
         Dictionary<Vector2Int, Wall> directionToDirection = new Dictionary<Vector2Int, Wall>()
         {
@@ -26,7 +23,7 @@ public class Astar
         while (openNodes.Count > 0 && loops < maxLoops)
         {
             loops++;
-            openNodes = openNodes.OrderByDescending(x => x.FScore).ToList();
+            openNodes = openNodes.OrderByDescending(x => -x.FScore).ToList();
             Node current = openNodes[0];
             openNodes.Remove(current);
             closedNodes.Add(current);
@@ -53,7 +50,7 @@ public class Astar
             {
                 if (closedNodes.Any(x => x.EqualTo(node)))
                     continue;
-                node.GScore = current.GScore + 1;
+                node.GScore = current.GScore + Vector2Int.Distance(node.position, current.position);
                 node.HScore = Vector2Int.Distance(node.position, endPos);
                 if (openNodes.Any(x => x.EqualTo(node)))
                 {
@@ -88,7 +85,7 @@ public class Astar
         public float HScore; //Distance estimated based on Heuristic
 
         public Node() { }
-        public Node(Vector2Int position, Node parent, int GScore, int HScore)
+        public Node(Vector2Int position, Node parent, float GScore, float HScore)
         {
             this.position = position;
             this.parent = parent;
